@@ -4,6 +4,8 @@ import type { CastData } from "../types";
 import { CastImages } from "./cast-images";
 import { CastVideos } from "./cast-videos";
 import { LikeIcon, RecastIcon, ReplyIcon, WarpcastIcon } from "./icons";
+import { SDKLink } from "./sdk-link";
+import { TextTruncator } from "./text-truncator";
 
 const linkifyOptions = {
   className: "farcaster-embed-body-link",
@@ -72,11 +74,16 @@ export function CastEmbed({
     <div className="not-prose farcaster-embed-container">
       <div>
         <div className="farcaster-embed-metadata">
-          <a href={profileUrl} className="farcaster-embed-avatar-link">
+          <SDKLink 
+            href={profileUrl} 
+            className="farcaster-embed-avatar-link"
+            onLinkClick={options.onLinkClick}
+            data-fid={author.fid?.toString()}
+          >
             <div className="farcaster-embed-author-avatar-container">
               <img src={author.pfp.url} alt={`@${author.username}`} className="farcaster-embed-author-avatar" />
             </div>
-          </a>
+          </SDKLink>
           <div className="farcaster-embed-author">
             <p className="farcaster-embed-author-display-name">{author.displayName}</p>
             <p className="farcaster-embed-author-username">@{author.username}</p>
@@ -86,9 +93,16 @@ export function CastEmbed({
           </div>
         </div>
         <div className="farcaster-embed-body">
-          <Linkify as="p" options={linkifyOptions}>
-            {stripLastEmbedUrlFromCastBody(cast.text, lastUrl)}
-          </Linkify>
+          {options.maxTextLength ? (
+            <TextTruncator
+              text={stripLastEmbedUrlFromCastBody(cast.text, lastUrl)}
+              maxLength={options.maxTextLength}
+            />
+          ) : (
+            <Linkify as="p" options={linkifyOptions}>
+              {stripLastEmbedUrlFromCastBody(cast.text, lastUrl)}
+            </Linkify>
+          )}
           {hasImages && <CastImages images={images} />}
           {hasVideos && <CastVideos videos={videos} client={client} />}
           {hasUrls && (

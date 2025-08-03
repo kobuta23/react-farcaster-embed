@@ -3,6 +3,8 @@ export type FarcasterEmbedOptions = {
   timestampLocale?: string;
   customEndpoint?: string;
   silentError?: boolean;
+  onLinkClick?: (url: string, event?: React.MouseEvent) => void;
+  maxTextLength?: number;
 };
 
 export const defaultOptions: FarcasterEmbedOptions = {
