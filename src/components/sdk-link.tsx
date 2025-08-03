@@ -4,7 +4,6 @@ interface SDKLinkProps {
   href: string;
   children: React.ReactNode;
   className?: string;
-  title?: string;
   onLinkClick?: (url: string, event?: React.MouseEvent) => void;
   "data-fid"?: string;
 }
