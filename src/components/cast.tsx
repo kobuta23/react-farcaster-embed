@@ -115,23 +115,23 @@ export function CastEmbed({
 
                 if (useLargeImage) {
                   return (
-                    <a key={index} href={url} target="_blank" className="farcaster-embed-url-link">
+                    <SDKLink key={index} href={url} className="farcaster-embed-url-link" onLinkClick={options.onLinkClick}>
                       {image && <img src={image} alt={title} className="farcaster-embed-url-image" />}
                       <span className="farcaster-embed-url-metadata">
                         <span className="farcaster-embed-url-title">{title}</span>
                         {description && <span className="farcaster-embed-url-description">{description}</span>}
                         {domain && <span className="farcaster-embed-url-domain">{domain}</span>}
                       </span>
-                    </a>
+                    </SDKLink>
                   );
                 }
 
                 return (
-                  <a
+                  <SDKLink
                     key={index}
                     href={url}
-                    target="_blank"
                     className="farcaster-embed-url-link farcaster-embed-url-link-compact"
+                    onLinkClick={options.onLinkClick}
                   >
                     {image && !isTwitter && <img src={image} alt={title} className="farcaster-embed-url-image" />}
                     <span className="farcaster-embed-url-metadata">
@@ -139,7 +139,7 @@ export function CastEmbed({
                       {description && <span className="farcaster-embed-url-description">{description}</span>}
                       {domain && <span className="farcaster-embed-url-domain">{domain}</span>}
                     </span>
-                  </a>
+                  </SDKLink>
                 );
               })}
             </div>
@@ -157,7 +157,12 @@ export function CastEmbed({
                 return (
                   <div key={quoteCast.hash} className="farcaster-embed-quote-cast">
                     <div className="farcaster-embed-metadata">
-                      <div className="farcaster-embed-avatar-link">
+                      <SDKLink 
+                        href={`https://warpcast.com/~/profiles/${quoteCast.author.fid}`}
+                        className="farcaster-embed-avatar-link"
+                        onLinkClick={options.onLinkClick}
+                        data-fid={quoteCast.author.fid?.toString()}
+                      >
                         <img
                           src={quoteCast.author.pfp.url}
                           alt={`@${quoteCast.author.username}`}
@@ -165,7 +170,7 @@ export function CastEmbed({
                           height={20}
                           className="farcaster-embed-author-avatar"
                         />
-                      </div>
+                      </SDKLink>
                       <div className="farcaster-embed-author">
                         <p className="farcaster-embed-author-display-name">{quoteCast.author.displayName}</p>
                         <p className="farcaster-embed-author-username">@{quoteCast.author.username}</p>
@@ -175,9 +180,16 @@ export function CastEmbed({
                       </div>
                     </div>
                     <div className="farcaster-embed-body">
-                      <Linkify as="p" options={linkifyOptions}>
-                        {quoteCast.text}
-                      </Linkify>
+                      {options.maxTextLength ? (
+                        <TextTruncator
+                          text={quoteCast.text}
+                          maxLength={options.maxTextLength}
+                        />
+                      ) : (
+                        <Linkify as="p" options={linkifyOptions}>
+                          {quoteCast.text}
+                        </Linkify>
+                      )}
                       {qcHasImages && <CastImages images={qcImages} />}
                       {qcHasVideos && <CastVideos videos={qcVideos} />}
                     </div>
@@ -203,28 +215,28 @@ export function CastEmbed({
       <div className="farcaster-embed-stats">
         <ul>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank">
+            <SDKLink className="farcaster-embed-stats-link" href={warpcastUrl} onLinkClick={options.onLinkClick}>
               <ReplyIcon />
               <span>{replies.toLocaleString("en-US")}</span>
-            </a>
+            </SDKLink>
           </li>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank">
+            <SDKLink className="farcaster-embed-stats-link" href={warpcastUrl} onLinkClick={options.onLinkClick}>
               <RecastIcon />
               <span>{recasts.toLocaleString("en-US")}</span>
-            </a>
+            </SDKLink>
           </li>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank">
+            <SDKLink className="farcaster-embed-stats-link" href={warpcastUrl} onLinkClick={options.onLinkClick}>
               <LikeIcon />
               <span>{likes.toLocaleString("en-US")}</span>
-            </a>
+            </SDKLink>
           </li>
         </ul>
         <div className="farcaster-embed-warpcast-icon">
-          <a href={warpcastUrl} title="Show on Warpcast" target="_blank" className="farcaster-embed-warpcast-link">
+          <SDKLink href={warpcastUrl} title="Show on Warpcast" className="farcaster-embed-warpcast-link" onLinkClick={options.onLinkClick}>
             <WarpcastIcon />
-          </a>
+          </SDKLink>
         </div>
       </div>
     </div>
