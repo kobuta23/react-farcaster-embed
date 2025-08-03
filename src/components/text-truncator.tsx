@@ -9,7 +9,10 @@ interface TextTruncatorProps {
 export function TextTruncator({ text, maxLength, className = "" }: TextTruncatorProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
+<<<<<<< HEAD
   // Reset expanded state when text or maxLength changes
+=======
+>>>>>>> eafa4da (Minimal patch: SDK-powered link handling and text truncation only (mark SDK as external))
   useEffect(() => {
     setIsExpanded(false);
   }, [text, maxLength]);
@@ -27,6 +30,7 @@ export function TextTruncator({ text, maxLength, className = "" }: TextTruncator
           {text}
           <button
             onClick={() => setIsExpanded(false)}
+<<<<<<< HEAD
             className="farcaster-embed-text-truncator-button"
             style={{
               color: "inherit",
@@ -38,6 +42,9 @@ export function TextTruncator({ text, maxLength, className = "" }: TextTruncator
               textDecoration: "underline",
               fontSize: "inherit",
             }}
+=======
+            style={{ marginLeft: 4, color: "#FF6200", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
+>>>>>>> eafa4da (Minimal patch: SDK-powered link handling and text truncation only (mark SDK as external))
           >
             see less
           </button>
@@ -47,6 +54,7 @@ export function TextTruncator({ text, maxLength, className = "" }: TextTruncator
           {truncatedText}
           <button
             onClick={() => setIsExpanded(true)}
+<<<<<<< HEAD
             className="farcaster-embed-text-truncator-button"
             style={{
               color: "inherit",
@@ -58,6 +66,9 @@ export function TextTruncator({ text, maxLength, className = "" }: TextTruncator
               textDecoration: "underline",
               fontSize: "inherit",
             }}
+=======
+            style={{ marginLeft: 4, color: "#FF6200", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" }}
+>>>>>>> eafa4da (Minimal patch: SDK-powered link handling and text truncation only (mark SDK as external))
           >
             see more...
           </button>

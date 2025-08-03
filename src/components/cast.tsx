@@ -4,8 +4,10 @@ import type { CastData } from "../types";
 import { CastImages } from "./cast-images";
 import { CastVideos } from "./cast-videos";
 import { LikeIcon, RecastIcon, ReplyIcon, WarpcastIcon } from "./icons";
-import { SDKLink } from "./sdk-link";
 import { TextTruncator } from "./text-truncator";
+// Import the SDK (assume user will polyfill or provide it in their app)
+// @ts-ignore
+import { sdk } from "@farcaster/miniapp-sdk";
 
 const linkifyOptions = {
   className: "farcaster-embed-body-link",
@@ -13,13 +15,9 @@ const linkifyOptions = {
 };
 
 function stripLastEmbedUrlFromCastBody(source: string, target: string) {
-  // Check if the target string is at the end of the source string
   if (source.endsWith(target)) {
-    // Calculate the start position of the target string
     let startIndex = source.lastIndexOf(target);
-    // Replace the target string with an empty space
     let sourceWithoutTarget = source.substring(0, startIndex);
-    // Trim the last newline
     let lastNewLineIndex = sourceWithoutTarget.lastIndexOf("\n");
     if (lastNewLineIndex !== -1) {
       sourceWithoutTarget =
@@ -27,9 +25,31 @@ function stripLastEmbedUrlFromCastBody(source: string, target: string) {
     }
     return sourceWithoutTarget + source.substring(startIndex + target.length);
   } else {
-    // Return the original source string if the target is not at the end
     return source;
   }
+}
+
+function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
+  const href = e.currentTarget.getAttribute("href") || "";
+  // Profile: https://warpcast.com/~/profiles/123
+  if (/\/~\/profiles\/(\d+)$/.test(href)) {
+    e.preventDefault();
+    const fid = parseInt(href.split("/").pop() || "0");
+    if (fid && sdk?.actions?.viewProfile) {
+      sdk.actions.viewProfile({ fid });
+    }
+    return;
+  }
+  // Cast: https://warpcast.com/username/0x...
+  if (/\/0x[0-9a-fA-F]+$/.test(href)) {
+    e.preventDefault();
+    const hash = href.split("/").pop();
+    if (hash && sdk?.actions?.viewCast) {
+      sdk.actions.viewCast({ hash });
+    }
+    return;
+  }
+  // Otherwise, let browser handle
 }
 
 export function CastEmbed({
@@ -70,71 +90,49 @@ export function CastEmbed({
   const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
 
+  // --- PATCH: Use TextTruncator for long text ---
+  const mainText = stripLastEmbedUrlFromCastBody(cast.text, lastUrl);
+  const shouldTruncate = mainText.length > 280;
+
   return (
-    <div className="farcaster-embed-root">
-      <div className="not-prose farcaster-embed-container">
-        <div>
-          <div className="farcaster-embed-metadata">
-            <SDKLink 
-              href={profileUrl} 
-              className="farcaster-embed-avatar-link"
-              onLinkClick={options.onLinkClick}
-              data-fid={author.fid?.toString()}
-            >
-              <div className="farcaster-embed-author-avatar-container">
-                <img src={author.pfp.url} alt={`@${author.username}`} className="farcaster-embed-author-avatar" />
-              </div>
-            </SDKLink>
-            <div className="farcaster-embed-author">
-              <p className="farcaster-embed-author-display-name">{author.displayName}</p>
-              <p className="farcaster-embed-author-username">@{author.username}</p>
+    <div className="not-prose farcaster-embed-container">
+      <div>
+        <div className="farcaster-embed-metadata">
+          <a href={profileUrl} className="farcaster-embed-avatar-link" onClick={handleSdkLinkClick}>
+            <div className="farcaster-embed-author-avatar-container">
+              <img src={author.pfp.url} alt={`@${author.username}`} className="farcaster-embed-author-avatar" />
             </div>
-            <div className="farcaster-embed-timestamp">
-              <p title={fullTimestamp}>{timestamp}</p>
-            </div>
+          </a>
+          <div className="farcaster-embed-author">
+            <p className="farcaster-embed-author-display-name">{author.displayName}</p>
+            <p className="farcaster-embed-author-username">@{author.username}</p>
           </div>
-          <div className="farcaster-embed-body">
-            {options.maxTextLength ? (
-              <TextTruncator
-                text={stripLastEmbedUrlFromCastBody(cast.text, lastUrl)}
-                maxLength={options.maxTextLength}
-              />
-            ) : (
-              <Linkify as="p" options={linkifyOptions}>
-                {stripLastEmbedUrlFromCastBody(cast.text, lastUrl)}
-              </Linkify>
-            )}
-            {hasImages && <CastImages images={images} />}
-            {hasVideos && <CastVideos videos={videos} client={client} />}
-            {hasUrls && (
-              <div className="farcaster-embed-urls-container">
-                {urls.map((item, index) => {
-                  const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
-                  const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
+          <div className="farcaster-embed-timestamp">
+            <p title={fullTimestamp}>{timestamp}</p>
+          </div>
+        </div>
+        <div className="farcaster-embed-body" style={{ wordWrap: "break-word" }}>
+          {shouldTruncate ? (
+            <TextTruncator text={mainText} maxLength={280} />
+          ) : (
+            <Linkify as="p" options={linkifyOptions}>
+              {mainText}
+            </Linkify>
+          )}
+          {hasImages && <CastImages images={images} />}
+          {hasVideos && <CastVideos videos={videos} client={client} />}
+          {hasUrls && (
+            <div className="farcaster-embed-urls-container">
+              {urls.map((item, index) => {
+                const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
+                const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
 
-                  if (domain === "warpcast.com") return null;
+                if (domain === "warpcast.com") return null;
 
-                  if (useLargeImage) {
-                    return (
-                      <a key={index} href={url} target="_blank" className="farcaster-embed-url-link">
-                        {image && <img src={image} alt={title} className="farcaster-embed-url-image" />}
-                        <span className="farcaster-embed-url-metadata">
-                          <span className="farcaster-embed-url-title">{title}</span>
-                          {description && <span className="farcaster-embed-url-description">{description}</span>}
-                          {domain && <span className="farcaster-embed-url-domain">{domain}</span>}
-                        </span>
-                      </a>
-                    );
-                  }
-
+                if (useLargeImage) {
                   return (
-                    <a
-                      key={index}
-                      href={url}
-                      target="_blank"
-                      className="farcaster-embed-url-link farcaster-embed-url-link-compact"
-                    >
-                      {image && !isTwitter && <img src={image} alt={title} className="farcaster-embed-url-image" />}
+                    <a key={index} href={url} target="_blank" className="farcaster-embed-url-link" onClick={handleSdkLinkClick}>
+                      {image && <img src={image} alt={title} className="farcaster-embed-url-image" />}
                       <span className="farcaster-embed-url-metadata">
                         <span className="farcaster-embed-url-title">{title}</span>
                         {description && <span className="farcaster-embed-url-description">{description}</span>}
@@ -142,52 +140,69 @@ export function CastEmbed({
                       </span>
                     </a>
                   );
-                })}
-              </div>
-            )}
-            {hasCastEmbeds && (
-              <div className="farcaster-embed-quote-cast-container">
-                {quoteCasts.map((quoteCast: CastData) => {
-                  const qcPublishedAt = new Date(quoteCast.timestamp);
-                  const qcTimestamp = qcPublishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
-                  const qcHasImages = quoteCast.embeds && quoteCast.embeds.images && quoteCast.embeds.images.length > 0;
-                  const qcImages = quoteCast.embeds && quoteCast.embeds.images;
-                  const qcHasVideos = quoteCast.embeds && quoteCast.embeds.videos && quoteCast.embeds.videos.length > 0;
-                  const qcVideos = quoteCast.embeds && quoteCast.embeds.videos;
+                }
 
-                  return (
-                    <div key={quoteCast.hash} className="farcaster-embed-quote-cast">
-                      <div className="farcaster-embed-metadata">
-                        <div className="farcaster-embed-avatar-link">
-                          <img
-                            src={quoteCast.author.pfp.url}
-                            alt={`@${quoteCast.author.username}`}
-                            width={20}
-                            height={20}
-                            className="farcaster-embed-author-avatar"
-                          />
-                        </div>
-                        <div className="farcaster-embed-author">
-                          <p className="farcaster-embed-author-display-name">{quoteCast.author.displayName}</p>
-                          <p className="farcaster-embed-author-username">@{quoteCast.author.username}</p>
-                        </div>
-                        <div className="farcaster-embed-timestamp">
-                          <p>{qcTimestamp}</p>
-                        </div>
+                return (
+                  <a
+                    key={index}
+                    href={url}
+                    target="_blank"
+                    className="farcaster-embed-url-link farcaster-embed-url-link-compact"
+                    onClick={handleSdkLinkClick}
+                  >
+                    {image && !isTwitter && <img src={image} alt={title} className="farcaster-embed-url-image" />}
+                    <span className="farcaster-embed-url-metadata">
+                      <span className="farcaster-embed-url-title">{title}</span>
+                      {description && <span className="farcaster-embed-url-description">{description}</span>}
+                      {domain && <span className="farcaster-embed-url-domain">{domain}</span>}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          )}
+          {hasCastEmbeds && (
+            <div className="farcaster-embed-quote-cast-container">
+              {quoteCasts.map((quoteCast: CastData) => {
+                const qcPublishedAt = new Date(quoteCast.timestamp);
+                const qcTimestamp = qcPublishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
+                const qcHasImages = quoteCast.embeds && quoteCast.embeds.images && quoteCast.embeds.images.length > 0;
+                const qcImages = quoteCast.embeds && quoteCast.embeds.images;
+                const qcHasVideos = quoteCast.embeds && quoteCast.embeds.videos && quoteCast.embeds.videos.length > 0;
+                const qcVideos = quoteCast.embeds && quoteCast.embeds.videos;
+
+                return (
+                  <div key={quoteCast.hash} className="farcaster-embed-quote-cast">
+                    <div className="farcaster-embed-metadata">
+                      <div className="farcaster-embed-avatar-link">
+                        <img
+                          src={quoteCast.author.pfp.url}
+                          alt={`@${quoteCast.author.username}`}
+                          width={20}
+                          height={20}
+                          className="farcaster-embed-author-avatar"
+                        />
                       </div>
-                      <div className="farcaster-embed-body">
-                        <Linkify as="p" options={linkifyOptions}>
-                          {quoteCast.text}
-                        </Linkify>
-                        {qcHasImages && <CastImages images={qcImages} />}
-                        {qcHasVideos && <CastVideos videos={qcVideos} />}
+                      <div className="farcaster-embed-author">
+                        <p className="farcaster-embed-author-display-name">{quoteCast.author.displayName}</p>
+                        <p className="farcaster-embed-author-username">@{quoteCast.author.username}</p>
+                      </div>
+                      <div className="farcaster-embed-timestamp">
+                        <p>{qcTimestamp}</p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+                    <div className="farcaster-embed-body">
+                      <Linkify as="p" options={linkifyOptions}>
+                        {quoteCast.text}
+                      </Linkify>
+                      {qcHasImages && <CastImages images={qcImages} />}
+                      {qcHasVideos && <CastVideos videos={qcVideos} />}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
         {cast.tags.length > 0 && (
           <div>
@@ -205,26 +220,26 @@ export function CastEmbed({
       <div className="farcaster-embed-stats">
         <ul>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank">
+            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank" onClick={handleSdkLinkClick}>
               <ReplyIcon />
               <span>{replies.toLocaleString("en-US")}</span>
             </a>
           </li>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank">
+            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank" onClick={handleSdkLinkClick}>
               <RecastIcon />
               <span>{recasts.toLocaleString("en-US")}</span>
             </a>
           </li>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank">
+            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank" onClick={handleSdkLinkClick}>
               <LikeIcon />
               <span>{likes.toLocaleString("en-US")}</span>
             </a>
           </li>
         </ul>
         <div className="farcaster-embed-warpcast-icon">
-          <a href={warpcastUrl} title="Show on Warpcast" target="_blank" className="farcaster-embed-warpcast-link">
+          <a href={warpcastUrl} title="Show on Warpcast" target="_blank" className="farcaster-embed-warpcast-link" onClick={handleSdkLinkClick}>
             <WarpcastIcon />
           </a>
         </div>

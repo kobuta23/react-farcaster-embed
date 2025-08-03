@@ -1,10 +1,10 @@
 import { defineConfig } from "tsup";
 
 export default defineConfig({
-  minify: true,
-  target: "esnext",
-  external: ["react"],
-  sourcemap: true,
+  entry: ["src/index.tsx"],
+  format: ["cjs", "esm"],
   dts: true,
-  format: ["esm", "cjs"],
+  sourcemap: true,
+  clean: true,
+  external: ["@farcaster/miniapp-sdk"],
 });
