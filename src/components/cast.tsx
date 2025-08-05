@@ -165,7 +165,7 @@ export function CastEmbed({
                     {image && !isTwitter && <img src={image} alt={title} className="farcaster-embed-url-image" />}
                     <span className="farcaster-embed-url-metadata">
                       <span className="farcaster-embed-url-title">{title}</span>
-                      {description && <span className="farcaster-embed-url-description">{description}</span>}
+                      {description && <span className="farcaster-embed-url-description">{description.slice(0, 100)}...</span>}
                       {domain && <span className="farcaster-embed-url-domain">{domain}</span>}
                     </span>
                   </a>

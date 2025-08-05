@@ -457,7 +457,10 @@ function CastEmbed({
                 image && !isTwitter && /* @__PURE__ */ jsx7("img", { src: image, alt: title, className: "farcaster-embed-url-image" }),
                 /* @__PURE__ */ jsxs3("span", { className: "farcaster-embed-url-metadata", children: [
                   /* @__PURE__ */ jsx7("span", { className: "farcaster-embed-url-title", children: title }),
-                  description && /* @__PURE__ */ jsx7("span", { className: "farcaster-embed-url-description", children: description }),
+                  description && /* @__PURE__ */ jsxs3("span", { className: "farcaster-embed-url-description", children: [
+                    description.slice(0, 100),
+                    "..."
+                  ] }),
                   domain && /* @__PURE__ */ jsx7("span", { className: "farcaster-embed-url-domain", children: domain })
                 ] })
               ]

@@ -470,7 +470,10 @@ function CastEmbed({
                 image && !isTwitter && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("img", { src: image, alt: title, className: "farcaster-embed-url-image" }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "farcaster-embed-url-metadata", children: [
                   /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "farcaster-embed-url-title", children: title }),
-                  description && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "farcaster-embed-url-description", children: description }),
+                  description && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("span", { className: "farcaster-embed-url-description", children: [
+                    description.slice(0, 100),
+                    "..."
+                  ] }),
                   domain && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { className: "farcaster-embed-url-domain", children: domain })
                 ] })
               ]
