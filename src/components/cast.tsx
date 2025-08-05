@@ -195,7 +195,13 @@ export function CastEmbed({
           )}
           {hasCastEmbeds && (
             <div className="farcaster-embed-quote-cast-container">
-              {quoteCasts.map((quoteCast: CastData) => {
+              {quoteCasts
+                .filter((quoteCast: CastData) => {
+                  // Check if this quote cast URL appears in the main text
+                  const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+                  return !mainText.includes(quoteUrl);
+                })
+                .map((quoteCast: CastData) => {
                 const qcPublishedAt = new Date(quoteCast.timestamp);
                 const qcTimestamp = qcPublishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
                 const qcHasImages = quoteCast.embeds && quoteCast.embeds.images && quoteCast.embeds.images.length > 0;

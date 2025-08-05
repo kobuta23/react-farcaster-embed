@@ -483,7 +483,10 @@ function CastEmbed({
             index
           );
         }) }),
-        hasCastEmbeds && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-quote-cast-container", children: quoteCasts.map((quoteCast) => {
+        hasCastEmbeds && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-quote-cast-container", children: quoteCasts.filter((quoteCast) => {
+          const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+          return !mainText.includes(quoteUrl);
+        }).map((quoteCast) => {
           const qcPublishedAt = new Date(quoteCast.timestamp);
           const qcTimestamp = qcPublishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
           const qcHasImages = quoteCast.embeds && quoteCast.embeds.images && quoteCast.embeds.images.length > 0;
