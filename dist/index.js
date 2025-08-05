@@ -286,11 +286,21 @@ var WarpcastIcon = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("svg", { 
 var import_react2 = require("react");
 var import_linkify_react = __toESM(require("linkify-react"));
 var import_jsx_runtime6 = require("react/jsx-runtime");
-var getLinkifyOptions = (onSdkLinkClick) => ({
-  className: "farcaster-embed-body-link",
+var getLinkifyOptions = (onSdkLinkClick, embeddedUrls = []) => ({
+  className: (href) => {
+    const baseClass = "farcaster-embed-body-link";
+    return embeddedUrls.includes(href) ? `${baseClass} embedded` : baseClass;
+  },
   target: "_blank",
   attributes: onSdkLinkClick ? {
-    onClick: onSdkLinkClick
+    onClick: (e) => {
+      const href = e.currentTarget.getAttribute("href") || "";
+      if (embeddedUrls.includes(href)) {
+        e.preventDefault();
+        return;
+      }
+      onSdkLinkClick(e);
+    }
   } : void 0
 });
 function CastTextFormatter({
@@ -310,7 +320,7 @@ function CastTextFormatter({
   const shouldTruncate = text.length > maxLength;
   const displayText = shouldTruncate && !isExpanded ? text.substring(0, maxLength) : text;
   const renderText = () => {
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_linkify_react.default, { as: "span", options: getLinkifyOptions(onSdkLinkClick), children: displayText });
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_linkify_react.default, { as: "span", options: getLinkifyOptions(onSdkLinkClick, embeddedUrls), children: displayText });
   };
   if (!shouldTruncate) {
     return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className, children: renderText() });
@@ -419,6 +429,21 @@ function CastEmbed({
   const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
   const mainText = cast.text;
+  const embeddedUrls = [];
+  if (quoteCasts) {
+    quoteCasts.forEach((quoteCast) => {
+      const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+      embeddedUrls.push(quoteUrl);
+    });
+  }
+  if (urls) {
+    urls.forEach((urlItem) => {
+      var _a2;
+      if ((_a2 = urlItem.openGraph) == null ? void 0 : _a2.url) {
+        embeddedUrls.push(urlItem.openGraph.url);
+      }
+    });
+  }
   return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "not-prose farcaster-embed-container", children: [
     /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
       /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-metadata", children: [
@@ -438,7 +463,8 @@ function CastEmbed({
           {
             text: mainText,
             maxLength: 280,
-            onSdkLinkClick: handleSdkLinkClick
+            onSdkLinkClick: handleSdkLinkClick,
+            embeddedUrls
           }
         ),
         hasImages && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastImages, { images }),
@@ -511,7 +537,8 @@ function CastEmbed({
                 {
                   text: quoteCast.text,
                   maxLength: 280,
-                  onSdkLinkClick: handleSdkLinkClick
+                  onSdkLinkClick: handleSdkLinkClick,
+                  embeddedUrls: []
                 }
               ),
               qcHasImages && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastImages, { images: qcImages }),

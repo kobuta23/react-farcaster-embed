@@ -253,11 +253,21 @@ var WarpcastIcon = () => /* @__PURE__ */ jsxs("svg", { width: "24", height: "24"
 import { useState, useEffect } from "react";
 import Linkify from "linkify-react";
 import { jsx as jsx6, jsxs as jsxs2 } from "react/jsx-runtime";
-var getLinkifyOptions = (onSdkLinkClick) => ({
-  className: "farcaster-embed-body-link",
+var getLinkifyOptions = (onSdkLinkClick, embeddedUrls = []) => ({
+  className: (href) => {
+    const baseClass = "farcaster-embed-body-link";
+    return embeddedUrls.includes(href) ? `${baseClass} embedded` : baseClass;
+  },
   target: "_blank",
   attributes: onSdkLinkClick ? {
-    onClick: onSdkLinkClick
+    onClick: (e) => {
+      const href = e.currentTarget.getAttribute("href") || "";
+      if (embeddedUrls.includes(href)) {
+        e.preventDefault();
+        return;
+      }
+      onSdkLinkClick(e);
+    }
   } : void 0
 });
 function CastTextFormatter({
@@ -277,7 +287,7 @@ function CastTextFormatter({
   const shouldTruncate = text.length > maxLength;
   const displayText = shouldTruncate && !isExpanded ? text.substring(0, maxLength) : text;
   const renderText = () => {
-    return /* @__PURE__ */ jsx6(Linkify, { as: "span", options: getLinkifyOptions(onSdkLinkClick), children: displayText });
+    return /* @__PURE__ */ jsx6(Linkify, { as: "span", options: getLinkifyOptions(onSdkLinkClick, embeddedUrls), children: displayText });
   };
   if (!shouldTruncate) {
     return /* @__PURE__ */ jsx6("span", { className, children: renderText() });
@@ -386,6 +396,21 @@ function CastEmbed({
   const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
   const mainText = cast.text;
+  const embeddedUrls = [];
+  if (quoteCasts) {
+    quoteCasts.forEach((quoteCast) => {
+      const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+      embeddedUrls.push(quoteUrl);
+    });
+  }
+  if (urls) {
+    urls.forEach((urlItem) => {
+      var _a2;
+      if ((_a2 = urlItem.openGraph) == null ? void 0 : _a2.url) {
+        embeddedUrls.push(urlItem.openGraph.url);
+      }
+    });
+  }
   return /* @__PURE__ */ jsxs3("div", { className: "not-prose farcaster-embed-container", children: [
     /* @__PURE__ */ jsxs3("div", { children: [
       /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-metadata", children: [
@@ -405,7 +430,8 @@ function CastEmbed({
           {
             text: mainText,
             maxLength: 280,
-            onSdkLinkClick: handleSdkLinkClick
+            onSdkLinkClick: handleSdkLinkClick,
+            embeddedUrls
           }
         ),
         hasImages && /* @__PURE__ */ jsx7(CastImages, { images }),
@@ -478,7 +504,8 @@ function CastEmbed({
                 {
                   text: quoteCast.text,
                   maxLength: 280,
-                  onSdkLinkClick: handleSdkLinkClick
+                  onSdkLinkClick: handleSdkLinkClick,
+                  embeddedUrls: []
                 }
               ),
               qcHasImages && /* @__PURE__ */ jsx7(CastImages, { images: qcImages }),

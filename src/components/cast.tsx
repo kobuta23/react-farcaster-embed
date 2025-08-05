@@ -106,6 +106,26 @@ export function CastEmbed({
   const quoteCasts = cast.embeds && cast.embeds.casts;
 
   const mainText = cast.text;
+  
+  // Get URLs that are embedded (quote casts and URL embeds)
+  const embeddedUrls: string[] = [];
+  
+  // Add quote cast URLs
+  if (quoteCasts) {
+    quoteCasts.forEach(quoteCast => {
+      const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+      embeddedUrls.push(quoteUrl);
+    });
+  }
+  
+  // Add URL embed URLs
+  if (urls) {
+    urls.forEach(urlItem => {
+      if (urlItem.openGraph?.url) {
+        embeddedUrls.push(urlItem.openGraph.url);
+      }
+    });
+  }
 
   return (
     <div className="not-prose farcaster-embed-container">
@@ -129,6 +149,7 @@ export function CastEmbed({
             text={mainText} 
             maxLength={280} 
             onSdkLinkClick={handleSdkLinkClick}
+            embeddedUrls={embeddedUrls}
           />
           {hasImages && <CastImages images={images} />}
           {hasVideos && <CastVideos videos={videos} client={client} />}
@@ -209,6 +230,7 @@ export function CastEmbed({
                         text={quoteCast.text} 
                         maxLength={280} 
                         onSdkLinkClick={handleSdkLinkClick}
+                        embeddedUrls={[]} // Quote casts don't have their own embeds
                       />
                       {qcHasImages && <CastImages images={qcImages} />}
                       {qcHasVideos && <CastVideos videos={qcVideos} />}

@@ -402,3 +402,19 @@
   font-size: 0.875rem;
   line-height: 1.5;
 }
+
+/* Link styles for text links */
+.farcaster-embed-body-link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.farcaster-embed-body-link.embedded {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  cursor: default;
+  pointer-events: none;
+}

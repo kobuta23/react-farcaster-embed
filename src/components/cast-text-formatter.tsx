@@ -9,11 +9,26 @@ interface CastTextFormatterProps {
   embeddedUrls?: string[];
 }
 
-const getLinkifyOptions = (onSdkLinkClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void) => ({
-  className: "farcaster-embed-body-link",
+const getLinkifyOptions = (
+  onSdkLinkClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void,
+  embeddedUrls: string[] = []
+) => ({
+  className: (href: string) => {
+    const baseClass = "farcaster-embed-body-link";
+    return embeddedUrls.includes(href) ? `${baseClass} embedded` : baseClass;
+  },
   target: "_blank",
   attributes: onSdkLinkClick ? {
-    onClick: onSdkLinkClick
+    onClick: (e: React.MouseEvent<HTMLAnchorElement>) => {
+      const href = e.currentTarget.getAttribute("href") || "";
+      // If this URL is embedded, prevent clicking
+      if (embeddedUrls.includes(href)) {
+        e.preventDefault();
+        return;
+      }
+      // Otherwise, handle normally
+      onSdkLinkClick(e);
+    }
   } : undefined
 });
 
@@ -41,7 +56,7 @@ export function CastTextFormatter({
 
   const renderText = () => {
     return (
-      <Linkify as="span" options={getLinkifyOptions(onSdkLinkClick)}>
+      <Linkify as="span" options={getLinkifyOptions(onSdkLinkClick, embeddedUrls)}>
         {displayText}
       </Linkify>
     );
