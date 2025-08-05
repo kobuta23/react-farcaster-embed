@@ -155,7 +155,21 @@ export function CastEmbed({
           {hasVideos && <CastVideos videos={videos} client={client} />}
           {hasUrls && (
             <div className="farcaster-embed-urls-container">
-              {urls.map((item, index) => {
+              {urls
+                .filter((item) => {
+                  // Filter out URL embeds that are actually quote casts
+                  const { url } = item.openGraph || {};
+                  if (!url) return true;
+                  
+                  // Check if this URL corresponds to a quote cast
+                  const isQuoteCastUrl = quoteCasts?.some(quoteCast => {
+                    const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+                    return url === quoteUrl;
+                  });
+                  
+                  return !isQuoteCastUrl; // Don't show URL embed if it's a quote cast
+                })
+                .map((item, index) => {
                 const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
                 const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
 
@@ -197,7 +211,16 @@ export function CastEmbed({
             <div className="farcaster-embed-quote-cast-container">
               {quoteCasts
                 .filter((quoteCast: CastData) => {
-                  // Check if this quote cast URL appears in the main text
+                  // Filter out quote casts that are the same as the main cast
+                  const isSameAsMainCast = 
+                    quoteCast.author?.username === cast.author?.username &&
+                    quoteCast.hash === cast.hash;
+                  
+                  if (isSameAsMainCast) {
+                    return false; // Don't show quote cast if it's the same as main cast
+                  }
+                  
+                  // Also check if this quote cast URL appears in the main text
                   const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
                   return !mainText.includes(quoteUrl);
                 })

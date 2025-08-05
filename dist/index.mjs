@@ -436,7 +436,16 @@ function CastEmbed({
         ),
         hasImages && /* @__PURE__ */ jsx7(CastImages, { images }),
         hasVideos && /* @__PURE__ */ jsx7(CastVideos, { videos, client }),
-        hasUrls && /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-urls-container", children: urls.map((item, index) => {
+        hasUrls && /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-urls-container", children: urls.filter((item) => {
+          const { url } = item.openGraph || {};
+          if (!url)
+            return true;
+          const isQuoteCastUrl = quoteCasts == null ? void 0 : quoteCasts.some((quoteCast) => {
+            const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+            return url === quoteUrl;
+          });
+          return !isQuoteCastUrl;
+        }).map((item, index) => {
           const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
           const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
           if (domain === "warpcast.com")
@@ -471,6 +480,11 @@ function CastEmbed({
           );
         }) }),
         hasCastEmbeds && /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-quote-cast-container", children: quoteCasts.filter((quoteCast) => {
+          var _a2, _b2;
+          const isSameAsMainCast = ((_a2 = quoteCast.author) == null ? void 0 : _a2.username) === ((_b2 = cast.author) == null ? void 0 : _b2.username) && quoteCast.hash === cast.hash;
+          if (isSameAsMainCast) {
+            return false;
+          }
           const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
           return !mainText.includes(quoteUrl);
         }).map((quoteCast) => {
