@@ -482,7 +482,7 @@ function CastEmbed({
           /* @__PURE__ */ jsx7("span", { children: likes.toLocaleString("en-US") })
         ] }) })
       ] }),
-      cast.tags.length > 0 && /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-channel", children: cast.tags[0].name && /* @__PURE__ */ jsxs3("p", { className: "farcaster-embed-channel-name", children: [
+      cast.tags.length > 0 && /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-channel-container", children: /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-channel", children: cast.tags[0].name && /* @__PURE__ */ jsxs3("p", { className: "farcaster-embed-channel-name", children: [
         "/",
         cast.tags[0].name
       ] }) }) }),

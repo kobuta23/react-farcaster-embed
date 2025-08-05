@@ -495,7 +495,7 @@ function CastEmbed({
           /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: likes.toLocaleString("en-US") })
         ] }) })
       ] }),
-      cast.tags.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-channel", children: cast.tags[0].name && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "farcaster-embed-channel-name", children: [
+      cast.tags.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-channel-container", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-channel", children: cast.tags[0].name && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "farcaster-embed-channel-name", children: [
         "/",
         cast.tags[0].name
       ] }) }) }),
