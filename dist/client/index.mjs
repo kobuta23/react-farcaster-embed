@@ -446,11 +446,7 @@ function CastEmbed({
             index
           );
         }) })
-      ] }),
-      cast.tags.length > 0 && /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-channel", children: [
-        cast.tags[0].imageUrl && /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-channel-avatar-container", children: /* @__PURE__ */ jsx7("img", { src: cast.tags[0].imageUrl, alt: cast.tags[0].name, className: "farcaster-embed-channel-avatar", width: 16, height: 16 }) }),
-        cast.tags[0].name && /* @__PURE__ */ jsx7("p", { className: "farcaster-embed-channel-name", children: cast.tags[0].name })
-      ] }) })
+      ] })
     ] }),
     /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-stats", children: [
       /* @__PURE__ */ jsxs3("ul", { children: [
@@ -467,6 +463,10 @@ function CastEmbed({
           /* @__PURE__ */ jsx7("span", { children: likes.toLocaleString("en-US") })
         ] }) })
       ] }),
+      cast.tags.length > 0 && /* @__PURE__ */ jsx7("div", { children: /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-channel", children: cast.tags[0].name && /* @__PURE__ */ jsxs3("p", { className: "farcaster-embed-channel-name", children: [
+        "/",
+        cast.tags[0].name
+      ] }) }) }),
       /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-farcaster-icon", children: /* @__PURE__ */ jsx7("a", { href: farcasterUrl, title: "Show on farcaster", target: "_blank", className: "farcaster-embed-farcaster-link", onClick: handleSdkLinkClick, children: /* @__PURE__ */ jsx7(FarcasterIcon, {}) }) })
     ] })
   ] });

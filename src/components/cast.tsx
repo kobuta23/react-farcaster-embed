@@ -8,23 +8,6 @@ import { CastTextFormatter } from "./cast-text-formatter";
 // @ts-ignore
 import { sdk } from "@farcaster/miniapp-sdk";
 
-
-
-function stripLastEmbedUrlFromCastBody(source: string, target: string) {
-  if (source.endsWith(target)) {
-    let startIndex = source.lastIndexOf(target);
-    let sourceWithoutTarget = source.substring(0, startIndex);
-    let lastNewLineIndex = sourceWithoutTarget.lastIndexOf("\n");
-    if (lastNewLineIndex !== -1) {
-      sourceWithoutTarget =
-        sourceWithoutTarget.substring(0, lastNewLineIndex) + sourceWithoutTarget.substring(lastNewLineIndex + 1);
-    }
-    return sourceWithoutTarget + source.substring(startIndex + target.length);
-  } else {
-    return source;
-  }
-}
-
 function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
   const href = e.currentTarget.getAttribute("href") || "";
   
@@ -191,18 +174,6 @@ export function CastEmbed({
             </div>
           )}
         </div>
-        {cast.tags.length > 0 && (
-          <div>
-            <div className="farcaster-embed-channel">
-              {cast.tags[0].imageUrl && (
-                <div className="farcaster-embed-channel-avatar-container">
-                  <img src={cast.tags[0].imageUrl} alt={cast.tags[0].name} className="farcaster-embed-channel-avatar" width={16} height={16} />
-                </div>
-              )}
-              {cast.tags[0].name && <p className="farcaster-embed-channel-name">{cast.tags[0].name}</p>}
-            </div>
-          </div>
-        )}
       </div>
       <div className="farcaster-embed-stats">
         <ul>
@@ -225,6 +196,13 @@ export function CastEmbed({
             </a>
           </li>
         </ul>
+        {cast.tags.length > 0 && (
+          <div>
+            <div className="farcaster-embed-channel">
+              {cast.tags[0].name && <p className="farcaster-embed-channel-name">/{cast.tags[0].name}</p>}
+            </div>
+          </div>
+        )}
         <div className="farcaster-embed-farcaster-icon">
           <a href={farcasterUrl} title="Show on farcaster" target="_blank" className="farcaster-embed-farcaster-link" onClick={handleSdkLinkClick}>
             <FarcasterIcon />

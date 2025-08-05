@@ -478,11 +478,7 @@ function CastEmbed({
             index
           );
         }) })
-      ] }),
-      cast.tags.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-channel", children: [
-        cast.tags[0].imageUrl && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-channel-avatar-container", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("img", { src: cast.tags[0].imageUrl, alt: cast.tags[0].name, className: "farcaster-embed-channel-avatar", width: 16, height: 16 }) }),
-        cast.tags[0].name && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { className: "farcaster-embed-channel-name", children: cast.tags[0].name })
-      ] }) })
+      ] })
     ] }),
     /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-stats", children: [
       /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("ul", { children: [
@@ -499,6 +495,10 @@ function CastEmbed({
           /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: likes.toLocaleString("en-US") })
         ] }) })
       ] }),
+      cast.tags.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-channel", children: cast.tags[0].name && /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "farcaster-embed-channel-name", children: [
+        "/",
+        cast.tags[0].name
+      ] }) }) }),
       /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-farcaster-icon", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: farcasterUrl, title: "Show on farcaster", target: "_blank", className: "farcaster-embed-farcaster-link", onClick: handleSdkLinkClick, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(FarcasterIcon, {}) }) })
     ] })
   ] });
