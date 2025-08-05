@@ -158,16 +158,29 @@ export function CastEmbed({
               {urls
                 .filter((item) => {
                   // Filter out URL embeds that are actually quote casts
-                  const { url } = item.openGraph || {};
+                  const { url, title, description } = item.openGraph || {};
                   if (!url) return true;
                   
-                  // Check if this URL corresponds to a quote cast
+                  // Check if this URL corresponds to a quote cast URL
                   const isQuoteCastUrl = quoteCasts?.some(quoteCast => {
                     const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
                     return url === quoteUrl;
                   });
                   
-                  return !isQuoteCastUrl; // Don't show URL embed if it's a quote cast
+                  if (isQuoteCastUrl) return false;
+                  
+                  // Check if this URL embed content matches any quote cast content
+                  const isQuoteCastContent = quoteCasts?.some(quoteCast => {
+                    // Check if the URL embed title/description matches the quote cast text
+                    const quoteText = quoteCast.text || '';
+                    const urlTitle = title || '';
+                    const urlDescription = description || '';
+                    
+                    // If the URL embed title or description contains the quote cast text, it's a duplicate
+                    return urlTitle.includes(quoteText) || urlDescription.includes(quoteText) || quoteText.includes(urlTitle);
+                  });
+                  
+                  return !isQuoteCastContent; // Don't show URL embed if it matches quote cast content
                 })
                 .map((item, index) => {
                 const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};

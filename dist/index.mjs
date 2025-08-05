@@ -437,14 +437,22 @@ function CastEmbed({
         hasImages && /* @__PURE__ */ jsx7(CastImages, { images }),
         hasVideos && /* @__PURE__ */ jsx7(CastVideos, { videos, client }),
         hasUrls && /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-urls-container", children: urls.filter((item) => {
-          const { url } = item.openGraph || {};
+          const { url, title, description } = item.openGraph || {};
           if (!url)
             return true;
           const isQuoteCastUrl = quoteCasts == null ? void 0 : quoteCasts.some((quoteCast) => {
             const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
             return url === quoteUrl;
           });
-          return !isQuoteCastUrl;
+          if (isQuoteCastUrl)
+            return false;
+          const isQuoteCastContent = quoteCasts == null ? void 0 : quoteCasts.some((quoteCast) => {
+            const quoteText = quoteCast.text || "";
+            const urlTitle = title || "";
+            const urlDescription = description || "";
+            return urlTitle.includes(quoteText) || urlDescription.includes(quoteText) || quoteText.includes(urlTitle);
+          });
+          return !isQuoteCastContent;
         }).map((item, index) => {
           const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
           const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
