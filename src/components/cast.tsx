@@ -199,8 +199,9 @@ export function CastEmbed({
         {cast.tags.length > 0 && (
           <div>
             <div className="farcaster-embed-channel">
+              {/* removed channel avatar */}
               {cast.tags[0].name && <p className="farcaster-embed-channel-name">/{cast.tags[0].name}</p>}
-            </div>
+            </div> 
           </div>
         )}
         <div className="farcaster-embed-farcaster-icon">
