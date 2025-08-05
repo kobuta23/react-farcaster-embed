@@ -110,13 +110,13 @@ export function CastEmbed({
   // Get URLs that are embedded (quote casts and URL embeds)
   const embeddedUrls: string[] = [];
   
-  // Add quote cast URLs
-  if (quoteCasts) {
-    quoteCasts.forEach(quoteCast => {
-      const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
-      embeddedUrls.push(quoteUrl);
-    });
-  }
+  // // Add quote cast URLs
+  // if (quoteCasts) {
+  //   quoteCasts.forEach(quoteCast => {
+  //     const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
+  //     embeddedUrls.push(quoteUrl);
+  //   });
+  // }
   
   // Add URL embed URLs
   if (urls) {

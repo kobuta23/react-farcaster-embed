@@ -411,12 +411,6 @@ function CastEmbed({
   const quoteCasts = cast.embeds && cast.embeds.casts;
   const mainText = cast.text;
   const embeddedUrls = [];
-  if (quoteCasts) {
-    quoteCasts.forEach((quoteCast) => {
-      const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
-      embeddedUrls.push(quoteUrl);
-    });
-  }
   if (urls) {
     urls.forEach((urlItem) => {
       var _a2;
