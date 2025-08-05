@@ -360,7 +360,6 @@ function CastEmbed({
   client,
   options
 }) {
-  var _a, _b;
   if (!cast)
     return null;
   const author = cast.author;
@@ -386,15 +385,19 @@ function CastEmbed({
   const videos = cast.embeds && cast.embeds.videos;
   const hasUrls = cast.embeds && cast.embeds.urls && cast.embeds.urls.length > 0;
   const urls = cast.embeds && cast.embeds.urls;
-  const lastUrl = urls && ((_b = (_a = urls[urls.length - 1]) == null ? void 0 : _a.openGraph) == null ? void 0 : _b.url) || "";
-  const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
   const mainText = cast.text;
   const embeddedUrls = [];
+  if (quoteCasts) {
+    quoteCasts.forEach((quoteCast) => {
+      const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
+      embeddedUrls.push(quoteUrl);
+    });
+  }
   if (urls) {
     urls.forEach((urlItem) => {
-      var _a2;
-      if ((_a2 = urlItem.openGraph) == null ? void 0 : _a2.url) {
+      var _a;
+      if ((_a = urlItem.openGraph) == null ? void 0 : _a.url) {
         embeddedUrls.push(urlItem.openGraph.url);
       }
     });
@@ -424,28 +427,9 @@ function CastEmbed({
         ),
         hasImages && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastImages, { images }),
         hasVideos && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastVideos, { videos, client }),
-        hasUrls && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-urls-container", children: urls.filter((item) => {
-          const { url, title, description } = item.openGraph || {};
-          if (!url)
-            return true;
-          const isQuoteCastUrl = quoteCasts == null ? void 0 : quoteCasts.some((quoteCast) => {
-            const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
-            return url === quoteUrl;
-          });
-          if (isQuoteCastUrl)
-            return false;
-          const isQuoteCastContent = quoteCasts == null ? void 0 : quoteCasts.some((quoteCast) => {
-            const quoteText = quoteCast.text || "";
-            const urlTitle = title || "";
-            const urlDescription = description || "";
-            return urlTitle.includes(quoteText) || urlDescription.includes(quoteText) || quoteText.includes(urlTitle);
-          });
-          return !isQuoteCastContent;
-        }).map((item, index) => {
+        hasUrls && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-urls-container", children: urls.map((item, index) => {
           const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
           const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
-          if (domain === "farcaster.xyz")
-            return null;
           if (useLargeImage) {
             return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("a", { href: url, target: "_blank", className: "farcaster-embed-url-link", onClick: handleSdkLinkClick, children: [
               image && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("img", { src: image, alt: title, className: "farcaster-embed-url-image" }),
@@ -474,57 +458,6 @@ function CastEmbed({
             },
             index
           );
-        }) }),
-        hasCastEmbeds && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-quote-cast-container", children: quoteCasts.filter((quoteCast) => {
-          var _a2, _b2;
-          const isSameAsMainCast = ((_a2 = quoteCast.author) == null ? void 0 : _a2.username) === ((_b2 = cast.author) == null ? void 0 : _b2.username) && quoteCast.hash === cast.hash;
-          if (isSameAsMainCast) {
-            return false;
-          }
-          const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
-          return !mainText.includes(quoteUrl);
-        }).map((quoteCast) => {
-          const qcPublishedAt = new Date(quoteCast.timestamp);
-          const qcTimestamp = qcPublishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
-          const qcHasImages = quoteCast.embeds && quoteCast.embeds.images && quoteCast.embeds.images.length > 0;
-          const qcImages = quoteCast.embeds && quoteCast.embeds.images;
-          const qcHasVideos = quoteCast.embeds && quoteCast.embeds.videos && quoteCast.embeds.videos.length > 0;
-          const qcVideos = quoteCast.embeds && quoteCast.embeds.videos;
-          return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-quote-cast", children: [
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-metadata", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-avatar-link", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-quote-cast-author-avatar-container", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
-                "img",
-                {
-                  src: quoteCast.author.pfp.url,
-                  alt: `@${quoteCast.author.username}`,
-                  width: 20,
-                  height: 20,
-                  className: "farcaster-embed-author-avatar"
-                }
-              ) }) }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-author", children: [
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { className: "farcaster-embed-author-display-name", children: quoteCast.author.displayName }),
-                /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "farcaster-embed-author-username", children: [
-                  "@",
-                  quoteCast.author.username
-                ] })
-              ] }),
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-timestamp", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: qcTimestamp }) })
-            ] }),
-            /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-body", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
-                CastTextFormatter,
-                {
-                  text: quoteCast.text,
-                  maxLength: 280,
-                  onSdkLinkClick: handleSdkLinkClick,
-                  embeddedUrls: []
-                }
-              ),
-              qcHasImages && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastImages, { images: qcImages }),
-              qcHasVideos && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastVideos, { videos: qcVideos })
-            ] })
-          ] }, quoteCast.hash);
         }) })
       ] }),
       cast.tags.length > 0 && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { children: /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-channel", children: [

@@ -101,8 +101,6 @@ export function CastEmbed({
   const videos = cast.embeds && cast.embeds.videos;
   const hasUrls = cast.embeds && cast.embeds.urls && cast.embeds.urls.length > 0;
   const urls = cast.embeds && cast.embeds.urls;
-  const lastUrl = (urls && urls[urls.length - 1]?.openGraph?.url) || "";
-  const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
 
   const mainText = cast.text;
@@ -110,13 +108,13 @@ export function CastEmbed({
   // Get URLs that are embedded (quote casts and URL embeds)
   const embeddedUrls: string[] = [];
   
-  // // Add quote cast URLs
-  // if (quoteCasts) {
-  //   quoteCasts.forEach(quoteCast => {
-  //     const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
-  //     embeddedUrls.push(quoteUrl);
-  //   });
-  // }
+  // Add quote cast URLs
+  if (quoteCasts) {
+    quoteCasts.forEach(quoteCast => {
+      const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
+      embeddedUrls.push(quoteUrl);
+    });
+  }
   
   // Add URL embed URLs
   if (urls) {
@@ -156,37 +154,9 @@ export function CastEmbed({
           {hasUrls && (
             <div className="farcaster-embed-urls-container">
               {urls
-                .filter((item) => {
-                  // Filter out URL embeds that are actually quote casts
-                  const { url, title, description } = item.openGraph || {};
-                  if (!url) return true;
-                  
-                  // Check if this URL corresponds to a quote cast URL
-                  const isQuoteCastUrl = quoteCasts?.some(quoteCast => {
-                    const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
-                    return url === quoteUrl;
-                  });
-                  
-                  if (isQuoteCastUrl) return false;
-                  
-                  // Check if this URL embed content matches any quote cast content
-                  const isQuoteCastContent = quoteCasts?.some(quoteCast => {
-                    // Check if the URL embed title/description matches the quote cast text
-                    const quoteText = quoteCast.text || '';
-                    const urlTitle = title || '';
-                    const urlDescription = description || '';
-                    
-                    // If the URL embed title or description contains the quote cast text, it's a duplicate
-                    return urlTitle.includes(quoteText) || urlDescription.includes(quoteText) || quoteText.includes(urlTitle);
-                  });
-                  
-                  return !isQuoteCastContent; // Don't show URL embed if it matches quote cast content
-                })
                 .map((item, index) => {
                 const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
                 const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
-
-                if (domain === "farcaster.xyz") return null;
 
                 if (useLargeImage) {
                   return (
@@ -216,68 +186,6 @@ export function CastEmbed({
                       {domain && <span className="farcaster-embed-url-domain">{domain}</span>}
                     </span>
                   </a>
-                );
-              })}
-            </div>
-          )}
-          {hasCastEmbeds && (
-            <div className="farcaster-embed-quote-cast-container">
-              {quoteCasts
-                .filter((quoteCast: CastData) => {
-                  // Filter out quote casts that are the same as the main cast
-                  const isSameAsMainCast = 
-                    quoteCast.author?.username === cast.author?.username &&
-                    quoteCast.hash === cast.hash;
-                  
-                  if (isSameAsMainCast) {
-                    return false; // Don't show quote cast if it's the same as main cast
-                  }
-                  
-                  // Also check if this quote cast URL appears in the main text
-                  const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
-                  return !mainText.includes(quoteUrl);
-                })
-                .map((quoteCast: CastData) => {
-                const qcPublishedAt = new Date(quoteCast.timestamp);
-                const qcTimestamp = qcPublishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
-                const qcHasImages = quoteCast.embeds && quoteCast.embeds.images && quoteCast.embeds.images.length > 0;
-                const qcImages = quoteCast.embeds && quoteCast.embeds.images;
-                const qcHasVideos = quoteCast.embeds && quoteCast.embeds.videos && quoteCast.embeds.videos.length > 0;
-                const qcVideos = quoteCast.embeds && quoteCast.embeds.videos;
-
-                return (
-                  <div key={quoteCast.hash} className="farcaster-embed-quote-cast">
-                    <div className="farcaster-embed-metadata">
-                      <div className="farcaster-embed-avatar-link">
-                        <div className="farcaster-embed-quote-cast-author-avatar-container">
-                        <img
-                          src={quoteCast.author.pfp.url}
-                          alt={`@${quoteCast.author.username}`}
-                          width={20}
-                          height={20}
-                          className="farcaster-embed-author-avatar"
-                        />
-                        </div>
-                      </div>
-                      <div className="farcaster-embed-author">
-                        <p className="farcaster-embed-author-display-name">{quoteCast.author.displayName}</p>
-                        <p className="farcaster-embed-author-username">@{quoteCast.author.username}</p>
-                      </div>
-                      <div className="farcaster-embed-timestamp">
-                        <p>{qcTimestamp}</p>
-                      </div>
-                    </div>
-                    <div className="farcaster-embed-body">
-                      <CastTextFormatter 
-                        text={quoteCast.text} 
-                        maxLength={280} 
-                        onSdkLinkClick={handleSdkLinkClick}
-                        embeddedUrls={[]} // Quote casts don't have their own embeds
-                      />
-                      {qcHasImages && <CastImages images={qcImages} />}
-                      {qcHasVideos && <CastVideos videos={qcVideos} />}
-                    </div>
-                  </div>
                 );
               })}
             </div>
