@@ -229,25 +229,6 @@ var LikeIcon = () => /* @__PURE__ */ jsx5(
     children: /* @__PURE__ */ jsx5("path", { d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" })
   }
 );
-var WarpcastIcon = () => /* @__PURE__ */ jsxs("svg", { width: "24", height: "24", viewBox: "0 0 1260 1260", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
-  /* @__PURE__ */ jsxs("g", { clipPath: "url(#fc-embed-clip1)", children: [
-    /* @__PURE__ */ jsx5(
-      "path",
-      {
-        d: "M947.747 1259.61H311.861C139.901 1259.61 0 1119.72 0 947.752V311.871C0 139.907 139.901 0.00541362 311.861 0.00541362H947.747C1119.71 0.00541362 1259.61 139.907 1259.61 311.871V947.752C1259.61 1119.72 1119.71 1259.61 947.747 1259.61Z",
-        fill: "#472A91"
-      }
-    ),
-    /* @__PURE__ */ jsx5(
-      "path",
-      {
-        d: "M826.513 398.633L764.404 631.889L702.093 398.633H558.697L495.789 633.607L433.087 398.633H269.764L421.528 914.36H562.431L629.807 674.876L697.181 914.36H838.388L989.819 398.633H826.513Z",
-        fill: "white"
-      }
-    )
-  ] }),
-  /* @__PURE__ */ jsx5("defs", { children: /* @__PURE__ */ jsx5("clipPath", { id: "fc-embed-clip1", children: /* @__PURE__ */ jsx5("rect", { width: "1259.61", height: "1259.61", fill: "white" }) }) })
-] });
 
 // src/components/cast-text-formatter.tsx
 import { useState, useEffect } from "react";
@@ -352,7 +333,7 @@ function handleSdkLinkClick(e) {
     }
     return;
   }
-  if (href && !href.startsWith("https://warpcast.com")) {
+  if (href && !href.startsWith("https://farcaster.xyz")) {
     e.preventDefault();
     const confirmed = window.confirm("You are being redirected out of the app. Continue?");
     if (confirmed) {
@@ -370,7 +351,7 @@ function CastEmbed({
   if (!cast)
     return null;
   const author = cast.author;
-  const profileUrl = `https://warpcast.com/~/profiles/${author.fid}`;
+  const profileUrl = `https://farcaster.xyz/~/profiles/${author.fid}`;
   const publishedAt = new Date(cast.timestamp);
   const timestamp = publishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
   const fullTimestamp = publishedAt.toLocaleString("en-US", {
@@ -382,7 +363,7 @@ function CastEmbed({
     second: "2-digit",
     hour12: true
   });
-  const warpcastUrl = `https://warpcast.com/${author.username}/${cast.hash}`;
+  const farcasterUrl = `https://farcaster.xyz/${author.username}/${cast.hash}`;
   const replies = cast.replies && cast.replies.count;
   const likes = cast.reactions && cast.reactions.count;
   const recasts = cast.combinedRecastCount ? cast.combinedRecastCount : cast.recasts.count;
@@ -399,7 +380,7 @@ function CastEmbed({
   const embeddedUrls = [];
   if (quoteCasts) {
     quoteCasts.forEach((quoteCast) => {
-      const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+      const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
       embeddedUrls.push(quoteUrl);
     });
   }
@@ -441,7 +422,7 @@ function CastEmbed({
           if (!url)
             return true;
           const isQuoteCastUrl = quoteCasts == null ? void 0 : quoteCasts.some((quoteCast) => {
-            const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+            const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
             return url === quoteUrl;
           });
           if (isQuoteCastUrl)
@@ -456,7 +437,7 @@ function CastEmbed({
         }).map((item, index) => {
           const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
           const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
-          if (domain === "warpcast.com")
+          if (domain === "farcaster.xyz")
             return null;
           if (useLargeImage) {
             return /* @__PURE__ */ jsxs3("a", { href: url, target: "_blank", className: "farcaster-embed-url-link", onClick: handleSdkLinkClick, children: [
@@ -493,7 +474,7 @@ function CastEmbed({
           if (isSameAsMainCast) {
             return false;
           }
-          const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+          const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
           return !mainText.includes(quoteUrl);
         }).map((quoteCast) => {
           const qcPublishedAt = new Date(quoteCast.timestamp);
@@ -546,20 +527,20 @@ function CastEmbed({
     ] }),
     /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-stats", children: [
       /* @__PURE__ */ jsxs3("ul", { children: [
-        /* @__PURE__ */ jsx7("li", { children: /* @__PURE__ */ jsxs3("a", { className: "farcaster-embed-stats-link", href: warpcastUrl, target: "_blank", onClick: handleSdkLinkClick, children: [
+        /* @__PURE__ */ jsx7("li", { children: /* @__PURE__ */ jsxs3("a", { className: "farcaster-embed-stats-link", href: farcasterUrl, target: "_blank", onClick: handleSdkLinkClick, children: [
           /* @__PURE__ */ jsx7(ReplyIcon, {}),
           /* @__PURE__ */ jsx7("span", { children: replies.toLocaleString("en-US") })
         ] }) }),
-        /* @__PURE__ */ jsx7("li", { children: /* @__PURE__ */ jsxs3("a", { className: "farcaster-embed-stats-link", href: warpcastUrl, target: "_blank", onClick: handleSdkLinkClick, children: [
+        /* @__PURE__ */ jsx7("li", { children: /* @__PURE__ */ jsxs3("a", { className: "farcaster-embed-stats-link", href: farcasterUrl, target: "_blank", onClick: handleSdkLinkClick, children: [
           /* @__PURE__ */ jsx7(RecastIcon, {}),
           /* @__PURE__ */ jsx7("span", { children: recasts.toLocaleString("en-US") })
         ] }) }),
-        /* @__PURE__ */ jsx7("li", { children: /* @__PURE__ */ jsxs3("a", { className: "farcaster-embed-stats-link", href: warpcastUrl, target: "_blank", onClick: handleSdkLinkClick, children: [
+        /* @__PURE__ */ jsx7("li", { children: /* @__PURE__ */ jsxs3("a", { className: "farcaster-embed-stats-link", href: farcasterUrl, target: "_blank", onClick: handleSdkLinkClick, children: [
           /* @__PURE__ */ jsx7(LikeIcon, {}),
           /* @__PURE__ */ jsx7("span", { children: likes.toLocaleString("en-US") })
         ] }) })
       ] }),
-      /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-warpcast-icon", children: /* @__PURE__ */ jsx7("a", { href: warpcastUrl, title: "Show on Warpcast", target: "_blank", className: "farcaster-embed-warpcast-link", onClick: handleSdkLinkClick, children: /* @__PURE__ */ jsx7(WarpcastIcon, {}) }) })
+      /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-farcaster-icon", children: /* @__PURE__ */ jsx7("a", { href: farcasterUrl, title: "Show on farcaster", target: "_blank", className: "farcaster-embed-farcaster-link", onClick: handleSdkLinkClick, children: /* @__PURE__ */ jsx7("farcasterIcon", {}) }) })
     ] })
   ] });
 }
@@ -591,7 +572,7 @@ async function FarcasterEmbed({
   }
   if (!castData && (!username || !hash)) {
     throw new Error(
-      "You must provide a Warpcast URL or username and hash to embed a cast. Or provide your own castData to render the component."
+      "You must provide a Farcaster URL or username and hash to embed a cast. Or provide your own castData to render the component."
     );
   }
   const cast = castData ?? await getCast(username, hash, { ...defaultOptions, ...options });

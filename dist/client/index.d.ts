@@ -124,9 +124,9 @@ type CastData = {
 
 /**
  * Renders a Farcaster embed for a cast. You can use two methods to render a Farcaster embed:
- * 1. Providing a Warpcast URL to a cast (url)
+ * 1. Providing a Farcaster URL to a cast (url)
  * 2. Providing a username and hash of a cast (username, hash)
- * @param url Warpcast URL for the cast.
+ * @param url Farcaster URL for the cast.
  * @param username Username of the cast author.
  * @param hash Hash of the cast.
  * @param castData Optional cast data. If provided, the API call to fetch the cast data will be skipped.

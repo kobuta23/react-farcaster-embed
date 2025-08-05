@@ -2,7 +2,7 @@ import type { FarcasterEmbedOptions } from "../options";
 import type { CastData } from "../types";
 import { CastImages } from "./cast-images";
 import { CastVideos } from "./cast-videos";
-import { LikeIcon, RecastIcon, ReplyIcon, WarpcastIcon } from "./icons";
+import { LikeIcon, RecastIcon, ReplyIcon, farcasterIcon } from "./icons";
 import { CastTextFormatter } from "./cast-text-formatter";
 // Import the SDK (assume user will polyfill or provide it in their app)
 // @ts-ignore
@@ -28,7 +28,7 @@ function stripLastEmbedUrlFromCastBody(source: string, target: string) {
 function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
   const href = e.currentTarget.getAttribute("href") || "";
   
-  // Profile: https://warpcast.com/~/profiles/123
+  // Profile: https://farcaster.xyz/~/profiles/123
   if (/\/~\/profiles\/(\d+)$/.test(href)) {
     e.preventDefault();
     const fid = parseInt(href.split("/").pop() || "0");
@@ -41,7 +41,7 @@ function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
     return;
   }
   
-  // Cast: https://warpcast.com/username/0x...
+  // Cast: https://farcaster.xyz/username/0x...
   if (/\/0x[0-9a-fA-F]+$/.test(href)) {
     e.preventDefault();
     const hash = href.split("/").pop();
@@ -55,7 +55,7 @@ function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
   }
   
   // External links - show warning and open in new tab
-  if (href && !href.startsWith("https://warpcast.com")) {
+  if (href && !href.startsWith("https://farcaster.xyz")) {
     e.preventDefault();
     const confirmed = window.confirm("You are being redirected out of the app. Continue?");
     if (confirmed) {
@@ -64,7 +64,7 @@ function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
     return;
   }
   
-  // Otherwise, let browser handle (internal Warpcast links)
+  // Otherwise, let browser handle (internal farcaster links)
 }
 
 export function CastEmbed({
@@ -79,7 +79,7 @@ export function CastEmbed({
   if (!cast) return null;
 
   const author = cast.author;
-  const profileUrl = `https://warpcast.com/~/profiles/${author.fid}`;
+  const profileUrl = `https://farcaster.xyz/~/profiles/${author.fid}`;
   const publishedAt = new Date(cast.timestamp);
   const timestamp = publishedAt.toLocaleString(options.timestampLocale, options.timestampFormat);
   const fullTimestamp = publishedAt.toLocaleString("en-US", {
@@ -91,7 +91,7 @@ export function CastEmbed({
     second: "2-digit",
     hour12: true,
   });
-  const warpcastUrl = `https://warpcast.com/${author.username}/${cast.hash}`;
+  const farcasterUrl = `https://farcaster.xyz/${author.username}/${cast.hash}`;
   const replies = cast.replies && cast.replies.count;
   const likes = cast.reactions && cast.reactions.count;
   const recasts = cast.combinedRecastCount ? cast.combinedRecastCount : cast.recasts.count;
@@ -113,7 +113,7 @@ export function CastEmbed({
   // Add quote cast URLs
   if (quoteCasts) {
     quoteCasts.forEach(quoteCast => {
-      const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+      const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
       embeddedUrls.push(quoteUrl);
     });
   }
@@ -163,7 +163,7 @@ export function CastEmbed({
                   
                   // Check if this URL corresponds to a quote cast URL
                   const isQuoteCastUrl = quoteCasts?.some(quoteCast => {
-                    const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+                    const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
                     return url === quoteUrl;
                   });
                   
@@ -186,7 +186,7 @@ export function CastEmbed({
                 const { description, domain, image, title, url, useLargeImage } = item.openGraph || {};
                 const isTwitter = domain === "twitter.com" || domain === "t.co" || domain === "x.com";
 
-                if (domain === "warpcast.com") return null;
+                if (domain === "farcaster.xyz") return null;
 
                 if (useLargeImage) {
                   return (
@@ -234,7 +234,7 @@ export function CastEmbed({
                   }
                   
                   // Also check if this quote cast URL appears in the main text
-                  const quoteUrl = `https://warpcast.com/${quoteCast.author.username}/${quoteCast.hash}`;
+                  const quoteUrl = `https://farcaster.xyz/${quoteCast.author.username}/${quoteCast.hash}`;
                   return !mainText.includes(quoteUrl);
                 })
                 .map((quoteCast: CastData) => {
@@ -299,27 +299,27 @@ export function CastEmbed({
       <div className="farcaster-embed-stats">
         <ul>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank" onClick={handleSdkLinkClick}>
+            <a className="farcaster-embed-stats-link" href={farcasterUrl} target="_blank" onClick={handleSdkLinkClick}>
               <ReplyIcon />
               <span>{replies.toLocaleString("en-US")}</span>
             </a>
           </li>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank" onClick={handleSdkLinkClick}>
+            <a className="farcaster-embed-stats-link" href={farcasterUrl} target="_blank" onClick={handleSdkLinkClick}>
               <RecastIcon />
               <span>{recasts.toLocaleString("en-US")}</span>
             </a>
           </li>
           <li>
-            <a className="farcaster-embed-stats-link" href={warpcastUrl} target="_blank" onClick={handleSdkLinkClick}>
+            <a className="farcaster-embed-stats-link" href={farcasterUrl} target="_blank" onClick={handleSdkLinkClick}>
               <LikeIcon />
               <span>{likes.toLocaleString("en-US")}</span>
             </a>
           </li>
         </ul>
-        <div className="farcaster-embed-warpcast-icon">
-          <a href={warpcastUrl} title="Show on Warpcast" target="_blank" className="farcaster-embed-warpcast-link" onClick={handleSdkLinkClick}>
-            <WarpcastIcon />
+        <div className="farcaster-embed-farcaster-icon">
+          <a href={farcasterUrl} title="Show on farcaster" target="_blank" className="farcaster-embed-farcaster-link" onClick={handleSdkLinkClick}>
+            <farcasterIcon />
           </a>
         </div>
       </div>

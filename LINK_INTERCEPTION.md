@@ -8,24 +8,24 @@ The react-farcaster-embed package includes intelligent link interception that pr
 
 ### Link Types and Behavior
 
-1. **Profile Links** (`https://warpcast.com/~/profiles/123`)
+1. **Profile Links** (`https://farcaster.xyz/~/profiles/123`)
    - **Behavior**: Uses Farcaster SDK to open profile in-app
    - **Fallback**: Opens in new tab if SDK unavailable
-   - **Example**: `https://warpcast.com/~/profiles/456`
+   - **Example**: `https://farcaster.xyz/~/profiles/456`
 
-2. **Cast Links** (`https://warpcast.com/username/0x...`)
+2. **Cast Links** (`https://farcaster.xyz/username/0x...`)
    - **Behavior**: Uses Farcaster SDK to open cast in-app
    - **Fallback**: Opens in new tab if SDK unavailable
-   - **Example**: `https://warpcast.com/alice/0x123abc`
+   - **Example**: `https://farcaster.xyz/alice/0x123abc`
 
-3. **External Links** (any non-Warpcast URL)
+3. **External Links** (any non-Farcaster URL)
    - **Behavior**: Shows confirmation dialog, then opens in new tab
    - **Message**: "You are being redirected out of the app. Continue?"
    - **Example**: `https://example.com`, `https://github.com`
 
-4. **Internal Warpcast Links** (`https://warpcast.com/...`)
+4. **Internal Farcaster Links** (`https://farcaster.xyz/...`)
    - **Behavior**: Opens normally in browser (no interception)
-   - **Example**: `https://warpcast.com/explore`
+   - **Example**: `https://farcaster.xyz/explore`
 
 ### Implementation
 
@@ -60,7 +60,7 @@ function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
   }
   
   // External links
-  if (href && !href.startsWith("https://warpcast.com")) {
+  if (href && !href.startsWith("https://farcaster.xyz")) {
     e.preventDefault();
     const confirmed = window.confirm("You are being redirected out of the app. Continue?");
     if (confirmed) {
@@ -69,7 +69,7 @@ function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
     return;
   }
   
-  // Internal Warpcast links - let browser handle
+  // Internal Farcaster links - let browser handle
 }
 ```
 
@@ -81,7 +81,7 @@ The link interception is applied to:
 2. **Avatar links** - Direct `onClick` handler
 3. **URL embeds** - Direct `onClick` handler
 4. **Stats links** - Direct `onClick` handler
-5. **Warpcast icon link** - Direct `onClick` handler
+5. **Farcaster icon link** - Direct `onClick` handler
 
 ## Testing
 
@@ -96,7 +96,7 @@ The link interception is applied to:
 
 - **Profile/Cast links**: Should show SDK alert or open in new tab
 - **External links**: Should show confirmation dialog, then open in new tab
-- **Internal Warpcast links**: Should open normally in browser
+- **Internal Farcaster links**: Should open normally in browser
 
 ### SDK Integration
 

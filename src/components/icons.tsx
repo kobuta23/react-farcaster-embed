@@ -48,7 +48,7 @@ export const LikeIcon = () => (
   </svg>
 );
 
-export const WarpcastIcon = () => (
+export const FarcasterIcon = () => (
   <svg width="24" height="24" viewBox="0 0 1260 1260" fill="none" xmlns="http://www.w3.org/2000/svg">
     <g clipPath="url(#fc-embed-clip1)">
       <path
