@@ -262,6 +262,25 @@ var LikeIcon = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
     children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("path", { d: "M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" })
   }
 );
+var FarcasterIcon = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("svg", { width: "24", height: "24", viewBox: "0 0 1260 1260", fill: "none", xmlns: "http://www.w3.org/2000/svg", children: [
+  /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("g", { clipPath: "url(#fc-embed-clip1)", children: [
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+      "path",
+      {
+        d: "M947.747 1259.61H311.861C139.901 1259.61 0 1119.72 0 947.752V311.871C0 139.907 139.901 0.00541362 311.861 0.00541362H947.747C1119.71 0.00541362 1259.61 139.907 1259.61 311.871V947.752C1259.61 1119.72 1119.71 1259.61 947.747 1259.61Z",
+        fill: "#472A91"
+      }
+    ),
+    /* @__PURE__ */ (0, import_jsx_runtime5.jsx)(
+      "path",
+      {
+        d: "M826.513 398.633L764.404 631.889L702.093 398.633H558.697L495.789 633.607L433.087 398.633H269.764L421.528 914.36H562.431L629.807 674.876L697.181 914.36H838.388L989.819 398.633H826.513Z",
+        fill: "white"
+      }
+    )
+  ] }),
+  /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("defs", { children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("clipPath", { id: "fc-embed-clip1", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("rect", { width: "1259.61", height: "1259.61", fill: "white" }) }) })
+] });
 
 // src/components/cast-text-formatter.tsx
 var import_react2 = require("react");
@@ -500,7 +519,7 @@ function CastEmbed({
           /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("span", { children: likes.toLocaleString("en-US") })
         ] }) })
       ] }),
-      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-farcaster-icon", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: farcasterUrl, title: "Show on farcaster", target: "_blank", className: "farcaster-embed-farcaster-link", onClick: handleSdkLinkClick, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("farcasterIcon", {}) }) })
+      /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-farcaster-icon", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("a", { href: farcasterUrl, title: "Show on farcaster", target: "_blank", className: "farcaster-embed-farcaster-link", onClick: handleSdkLinkClick, children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(FarcasterIcon, {}) }) })
     ] })
   ] });
 }

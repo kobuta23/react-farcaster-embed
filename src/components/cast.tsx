@@ -2,7 +2,7 @@ import type { FarcasterEmbedOptions } from "../options";
 import type { CastData } from "../types";
 import { CastImages } from "./cast-images";
 import { CastVideos } from "./cast-videos";
-import { LikeIcon, RecastIcon, ReplyIcon, farcasterIcon } from "./icons";
+import { LikeIcon, RecastIcon, ReplyIcon, FarcasterIcon } from "./icons";
 import { CastTextFormatter } from "./cast-text-formatter";
 // Import the SDK (assume user will polyfill or provide it in their app)
 // @ts-ignore
@@ -227,7 +227,7 @@ export function CastEmbed({
         </ul>
         <div className="farcaster-embed-farcaster-icon">
           <a href={farcasterUrl} title="Show on farcaster" target="_blank" className="farcaster-embed-farcaster-link" onClick={handleSdkLinkClick}>
-            <farcasterIcon />
+            <FarcasterIcon />
           </a>
         </div>
       </div>
