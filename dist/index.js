@@ -55,9 +55,6 @@ var getCast = async (username, hash, options) => {
   }
 };
 
-// src/components/cast.tsx
-var import_linkify_react = __toESM(require("linkify-react"));
-
 // src/components/cast-images.tsx
 var import_jsx_runtime = require("react/jsx-runtime");
 function CastImages({ images }) {
@@ -285,61 +282,76 @@ var WarpcastIcon = () => /* @__PURE__ */ (0, import_jsx_runtime5.jsxs)("svg", { 
   /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("defs", { children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("clipPath", { id: "fc-embed-clip1", children: /* @__PURE__ */ (0, import_jsx_runtime5.jsx)("rect", { width: "1259.61", height: "1259.61", fill: "white" }) }) })
 ] });
 
-// src/components/text-truncator.tsx
+// src/components/cast-text-formatter.tsx
 var import_react2 = require("react");
+var import_linkify_react = __toESM(require("linkify-react"));
 var import_jsx_runtime6 = require("react/jsx-runtime");
-function TextTruncator({ text, maxLength, className = "" }) {
+var getLinkifyOptions = (onSdkLinkClick) => ({
+  className: "farcaster-embed-body-link",
+  target: "_blank",
+  attributes: onSdkLinkClick ? {
+    onClick: onSdkLinkClick
+  } : void 0
+});
+function CastTextFormatter({
+  text,
+  maxLength = 280,
+  className = "",
+  onSdkLinkClick,
+  embeddedUrls = []
+}) {
   const [isExpanded, setIsExpanded] = (0, import_react2.useState)(false);
   (0, import_react2.useEffect)(() => {
     setIsExpanded(false);
   }, [text, maxLength]);
-  if (!text || text.length <= maxLength) {
-    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className, children: text });
+  if (!text) {
+    return null;
   }
-  const truncatedText = text.substring(0, maxLength);
-  return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className, children: isExpanded ? /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    text,
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+  const shouldTruncate = text.length > maxLength;
+  const displayText = shouldTruncate && !isExpanded ? text.substring(0, maxLength) : text;
+  const renderText = () => {
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(import_linkify_react.default, { as: "span", options: getLinkifyOptions(onSdkLinkClick), children: displayText });
+  };
+  if (!shouldTruncate) {
+    return /* @__PURE__ */ (0, import_jsx_runtime6.jsx)("span", { className, children: renderText() });
+  }
+  return /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)("span", { className, children: [
+    renderText(),
+    isExpanded ? /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
       "button",
       {
         onClick: () => setIsExpanded(false),
-        style: { marginLeft: 4, color: "#FF6200", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" },
+        style: {
+          marginLeft: 4,
+          color: "#FF6200",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          textDecoration: "underline"
+        },
         children: "see less"
       }
-    )
-  ] }) : /* @__PURE__ */ (0, import_jsx_runtime6.jsxs)(import_jsx_runtime6.Fragment, { children: [
-    truncatedText,
-    /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
+    ) : /* @__PURE__ */ (0, import_jsx_runtime6.jsx)(
       "button",
       {
         onClick: () => setIsExpanded(true),
-        style: { marginLeft: 4, color: "#FF6200", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" },
+        style: {
+          marginLeft: 4,
+          color: "#FF6200",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          textDecoration: "underline"
+        },
         children: "see more..."
       }
     )
-  ] }) });
+  ] });
 }
 
 // src/components/cast.tsx
 var import_miniapp_sdk = require("@farcaster/miniapp-sdk");
 var import_jsx_runtime7 = require("react/jsx-runtime");
-var linkifyOptions = {
-  className: "farcaster-embed-body-link",
-  target: "_blank"
-};
-function stripLastEmbedUrlFromCastBody(source, target) {
-  if (source.endsWith(target)) {
-    let startIndex = source.lastIndexOf(target);
-    let sourceWithoutTarget = source.substring(0, startIndex);
-    let lastNewLineIndex = sourceWithoutTarget.lastIndexOf("\n");
-    if (lastNewLineIndex !== -1) {
-      sourceWithoutTarget = sourceWithoutTarget.substring(0, lastNewLineIndex) + sourceWithoutTarget.substring(lastNewLineIndex + 1);
-    }
-    return sourceWithoutTarget + source.substring(startIndex + target.length);
-  } else {
-    return source;
-  }
-}
 function handleSdkLinkClick(e) {
   var _a, _b, _c, _d;
   const href = e.currentTarget.getAttribute("href") || "";
@@ -348,6 +360,8 @@ function handleSdkLinkClick(e) {
     const fid = parseInt(href.split("/").pop() || "0");
     if (fid && ((_b = (_a = import_miniapp_sdk.sdk) == null ? void 0 : _a.actions) == null ? void 0 : _b.viewProfile)) {
       import_miniapp_sdk.sdk.actions.viewProfile({ fid });
+    } else {
+      window.open(href, "_blank");
     }
     return;
   }
@@ -356,6 +370,16 @@ function handleSdkLinkClick(e) {
     const hash = href.split("/").pop();
     if (hash && ((_d = (_c = import_miniapp_sdk.sdk) == null ? void 0 : _c.actions) == null ? void 0 : _d.viewCast)) {
       import_miniapp_sdk.sdk.actions.viewCast({ hash });
+    } else {
+      window.open(href, "_blank");
+    }
+    return;
+  }
+  if (href && !href.startsWith("https://warpcast.com")) {
+    e.preventDefault();
+    const confirmed = window.confirm("You are being redirected out of the app. Continue?");
+    if (confirmed) {
+      window.open(href, "_blank");
     }
     return;
   }
@@ -394,8 +418,7 @@ function CastEmbed({
   const lastUrl = urls && ((_b = (_a = urls[urls.length - 1]) == null ? void 0 : _a.openGraph) == null ? void 0 : _b.url) || "";
   const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
-  const mainText = stripLastEmbedUrlFromCastBody(cast.text, lastUrl);
-  const shouldTruncate = mainText.length > 280;
+  const mainText = cast.text;
   return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "not-prose farcaster-embed-container", children: [
     /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { children: [
       /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-metadata", children: [
@@ -410,7 +433,14 @@ function CastEmbed({
         /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-timestamp", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { title: fullTimestamp, children: timestamp }) })
       ] }),
       /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-body", style: { wordWrap: "break-word" }, children: [
-        shouldTruncate ? /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(TextTruncator, { text: mainText, maxLength: 280 }) : /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_linkify_react.default, { as: "p", options: linkifyOptions, children: mainText }),
+        /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+          CastTextFormatter,
+          {
+            text: mainText,
+            maxLength: 280,
+            onSdkLinkClick: handleSdkLinkClick
+          }
+        ),
         hasImages && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastImages, { images }),
         hasVideos && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastVideos, { videos, client }),
         hasUrls && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-urls-container", children: urls.map((item, index) => {
@@ -456,7 +486,7 @@ function CastEmbed({
           const qcVideos = quoteCast.embeds && quoteCast.embeds.videos;
           return /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-quote-cast", children: [
             /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-metadata", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-avatar-link", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-avatar-link", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-quote-cast-author-avatar-container", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
                 "img",
                 {
                   src: quoteCast.author.pfp.url,
@@ -465,7 +495,7 @@ function CastEmbed({
                   height: 20,
                   className: "farcaster-embed-author-avatar"
                 }
-              ) }),
+              ) }) }),
               /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-author", children: [
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { className: "farcaster-embed-author-display-name", children: quoteCast.author.displayName }),
                 /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("p", { className: "farcaster-embed-author-username", children: [
@@ -476,7 +506,14 @@ function CastEmbed({
               /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("div", { className: "farcaster-embed-timestamp", children: /* @__PURE__ */ (0, import_jsx_runtime7.jsx)("p", { children: qcTimestamp }) })
             ] }),
             /* @__PURE__ */ (0, import_jsx_runtime7.jsxs)("div", { className: "farcaster-embed-body", children: [
-              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(import_linkify_react.default, { as: "p", options: linkifyOptions, children: quoteCast.text }),
+              /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(
+                CastTextFormatter,
+                {
+                  text: quoteCast.text,
+                  maxLength: 280,
+                  onSdkLinkClick: handleSdkLinkClick
+                }
+              ),
               qcHasImages && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastImages, { images: qcImages }),
               qcHasVideos && /* @__PURE__ */ (0, import_jsx_runtime7.jsx)(CastVideos, { videos: qcVideos })
             ] })

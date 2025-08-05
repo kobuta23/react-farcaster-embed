@@ -22,9 +22,6 @@ var getCast = async (username, hash, options) => {
   }
 };
 
-// src/components/cast.tsx
-import Linkify from "linkify-react";
-
 // src/components/cast-images.tsx
 import { jsx } from "react/jsx-runtime";
 function CastImages({ images }) {
@@ -252,61 +249,76 @@ var WarpcastIcon = () => /* @__PURE__ */ jsxs("svg", { width: "24", height: "24"
   /* @__PURE__ */ jsx5("defs", { children: /* @__PURE__ */ jsx5("clipPath", { id: "fc-embed-clip1", children: /* @__PURE__ */ jsx5("rect", { width: "1259.61", height: "1259.61", fill: "white" }) }) })
 ] });
 
-// src/components/text-truncator.tsx
+// src/components/cast-text-formatter.tsx
 import { useState, useEffect } from "react";
-import { Fragment, jsx as jsx6, jsxs as jsxs2 } from "react/jsx-runtime";
-function TextTruncator({ text, maxLength, className = "" }) {
+import Linkify from "linkify-react";
+import { jsx as jsx6, jsxs as jsxs2 } from "react/jsx-runtime";
+var getLinkifyOptions = (onSdkLinkClick) => ({
+  className: "farcaster-embed-body-link",
+  target: "_blank",
+  attributes: onSdkLinkClick ? {
+    onClick: onSdkLinkClick
+  } : void 0
+});
+function CastTextFormatter({
+  text,
+  maxLength = 280,
+  className = "",
+  onSdkLinkClick,
+  embeddedUrls = []
+}) {
   const [isExpanded, setIsExpanded] = useState(false);
   useEffect(() => {
     setIsExpanded(false);
   }, [text, maxLength]);
-  if (!text || text.length <= maxLength) {
-    return /* @__PURE__ */ jsx6("span", { className, children: text });
+  if (!text) {
+    return null;
   }
-  const truncatedText = text.substring(0, maxLength);
-  return /* @__PURE__ */ jsx6("span", { className, children: isExpanded ? /* @__PURE__ */ jsxs2(Fragment, { children: [
-    text,
-    /* @__PURE__ */ jsx6(
+  const shouldTruncate = text.length > maxLength;
+  const displayText = shouldTruncate && !isExpanded ? text.substring(0, maxLength) : text;
+  const renderText = () => {
+    return /* @__PURE__ */ jsx6(Linkify, { as: "span", options: getLinkifyOptions(onSdkLinkClick), children: displayText });
+  };
+  if (!shouldTruncate) {
+    return /* @__PURE__ */ jsx6("span", { className, children: renderText() });
+  }
+  return /* @__PURE__ */ jsxs2("span", { className, children: [
+    renderText(),
+    isExpanded ? /* @__PURE__ */ jsx6(
       "button",
       {
         onClick: () => setIsExpanded(false),
-        style: { marginLeft: 4, color: "#FF6200", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" },
+        style: {
+          marginLeft: 4,
+          color: "#FF6200",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          textDecoration: "underline"
+        },
         children: "see less"
       }
-    )
-  ] }) : /* @__PURE__ */ jsxs2(Fragment, { children: [
-    truncatedText,
-    /* @__PURE__ */ jsx6(
+    ) : /* @__PURE__ */ jsx6(
       "button",
       {
         onClick: () => setIsExpanded(true),
-        style: { marginLeft: 4, color: "#FF6200", background: "none", border: "none", cursor: "pointer", textDecoration: "underline" },
+        style: {
+          marginLeft: 4,
+          color: "#FF6200",
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+          textDecoration: "underline"
+        },
         children: "see more..."
       }
     )
-  ] }) });
+  ] });
 }
 
 // src/components/cast.tsx
 import { sdk } from "@farcaster/miniapp-sdk";
 import { jsx as jsx7, jsxs as jsxs3 } from "react/jsx-runtime";
-var linkifyOptions = {
-  className: "farcaster-embed-body-link",
-  target: "_blank"
-};
-function stripLastEmbedUrlFromCastBody(source, target) {
-  if (source.endsWith(target)) {
-    let startIndex = source.lastIndexOf(target);
-    let sourceWithoutTarget = source.substring(0, startIndex);
-    let lastNewLineIndex = sourceWithoutTarget.lastIndexOf("\n");
-    if (lastNewLineIndex !== -1) {
-      sourceWithoutTarget = sourceWithoutTarget.substring(0, lastNewLineIndex) + sourceWithoutTarget.substring(lastNewLineIndex + 1);
-    }
-    return sourceWithoutTarget + source.substring(startIndex + target.length);
-  } else {
-    return source;
-  }
-}
 function handleSdkLinkClick(e) {
   var _a, _b, _c, _d;
   const href = e.currentTarget.getAttribute("href") || "";
@@ -315,6 +327,8 @@ function handleSdkLinkClick(e) {
     const fid = parseInt(href.split("/").pop() || "0");
     if (fid && ((_b = (_a = sdk) == null ? void 0 : _a.actions) == null ? void 0 : _b.viewProfile)) {
       sdk.actions.viewProfile({ fid });
+    } else {
+      window.open(href, "_blank");
     }
     return;
   }
@@ -323,6 +337,16 @@ function handleSdkLinkClick(e) {
     const hash = href.split("/").pop();
     if (hash && ((_d = (_c = sdk) == null ? void 0 : _c.actions) == null ? void 0 : _d.viewCast)) {
       sdk.actions.viewCast({ hash });
+    } else {
+      window.open(href, "_blank");
+    }
+    return;
+  }
+  if (href && !href.startsWith("https://warpcast.com")) {
+    e.preventDefault();
+    const confirmed = window.confirm("You are being redirected out of the app. Continue?");
+    if (confirmed) {
+      window.open(href, "_blank");
     }
     return;
   }
@@ -361,8 +385,7 @@ function CastEmbed({
   const lastUrl = urls && ((_b = (_a = urls[urls.length - 1]) == null ? void 0 : _a.openGraph) == null ? void 0 : _b.url) || "";
   const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
-  const mainText = stripLastEmbedUrlFromCastBody(cast.text, lastUrl);
-  const shouldTruncate = mainText.length > 280;
+  const mainText = cast.text;
   return /* @__PURE__ */ jsxs3("div", { className: "not-prose farcaster-embed-container", children: [
     /* @__PURE__ */ jsxs3("div", { children: [
       /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-metadata", children: [
@@ -377,7 +400,14 @@ function CastEmbed({
         /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-timestamp", children: /* @__PURE__ */ jsx7("p", { title: fullTimestamp, children: timestamp }) })
       ] }),
       /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-body", style: { wordWrap: "break-word" }, children: [
-        shouldTruncate ? /* @__PURE__ */ jsx7(TextTruncator, { text: mainText, maxLength: 280 }) : /* @__PURE__ */ jsx7(Linkify, { as: "p", options: linkifyOptions, children: mainText }),
+        /* @__PURE__ */ jsx7(
+          CastTextFormatter,
+          {
+            text: mainText,
+            maxLength: 280,
+            onSdkLinkClick: handleSdkLinkClick
+          }
+        ),
         hasImages && /* @__PURE__ */ jsx7(CastImages, { images }),
         hasVideos && /* @__PURE__ */ jsx7(CastVideos, { videos, client }),
         hasUrls && /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-urls-container", children: urls.map((item, index) => {
@@ -423,7 +453,7 @@ function CastEmbed({
           const qcVideos = quoteCast.embeds && quoteCast.embeds.videos;
           return /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-quote-cast", children: [
             /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-metadata", children: [
-              /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-avatar-link", children: /* @__PURE__ */ jsx7(
+              /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-avatar-link", children: /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-quote-cast-author-avatar-container", children: /* @__PURE__ */ jsx7(
                 "img",
                 {
                   src: quoteCast.author.pfp.url,
@@ -432,7 +462,7 @@ function CastEmbed({
                   height: 20,
                   className: "farcaster-embed-author-avatar"
                 }
-              ) }),
+              ) }) }),
               /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-author", children: [
                 /* @__PURE__ */ jsx7("p", { className: "farcaster-embed-author-display-name", children: quoteCast.author.displayName }),
                 /* @__PURE__ */ jsxs3("p", { className: "farcaster-embed-author-username", children: [
@@ -443,7 +473,14 @@ function CastEmbed({
               /* @__PURE__ */ jsx7("div", { className: "farcaster-embed-timestamp", children: /* @__PURE__ */ jsx7("p", { children: qcTimestamp }) })
             ] }),
             /* @__PURE__ */ jsxs3("div", { className: "farcaster-embed-body", children: [
-              /* @__PURE__ */ jsx7(Linkify, { as: "p", options: linkifyOptions, children: quoteCast.text }),
+              /* @__PURE__ */ jsx7(
+                CastTextFormatter,
+                {
+                  text: quoteCast.text,
+                  maxLength: 280,
+                  onSdkLinkClick: handleSdkLinkClick
+                }
+              ),
               qcHasImages && /* @__PURE__ */ jsx7(CastImages, { images: qcImages }),
               qcHasVideos && /* @__PURE__ */ jsx7(CastVideos, { videos: qcVideos })
             ] })

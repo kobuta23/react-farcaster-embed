@@ -1,18 +1,14 @@
-import Linkify from "linkify-react";
 import type { FarcasterEmbedOptions } from "../options";
 import type { CastData } from "../types";
 import { CastImages } from "./cast-images";
 import { CastVideos } from "./cast-videos";
 import { LikeIcon, RecastIcon, ReplyIcon, WarpcastIcon } from "./icons";
-import { TextTruncator } from "./text-truncator";
+import { CastTextFormatter } from "./cast-text-formatter";
 // Import the SDK (assume user will polyfill or provide it in their app)
 // @ts-ignore
 import { sdk } from "@farcaster/miniapp-sdk";
 
-const linkifyOptions = {
-  className: "farcaster-embed-body-link",
-  target: "_blank",
-};
+
 
 function stripLastEmbedUrlFromCastBody(source: string, target: string) {
   if (source.endsWith(target)) {
@@ -31,25 +27,44 @@ function stripLastEmbedUrlFromCastBody(source: string, target: string) {
 
 function handleSdkLinkClick(e: React.MouseEvent<HTMLAnchorElement>) {
   const href = e.currentTarget.getAttribute("href") || "";
+  
   // Profile: https://warpcast.com/~/profiles/123
   if (/\/~\/profiles\/(\d+)$/.test(href)) {
     e.preventDefault();
     const fid = parseInt(href.split("/").pop() || "0");
     if (fid && sdk?.actions?.viewProfile) {
       sdk.actions.viewProfile({ fid });
+    } else {
+      // Fallback: open in new tab if SDK not available
+      window.open(href, "_blank");
     }
     return;
   }
+  
   // Cast: https://warpcast.com/username/0x...
   if (/\/0x[0-9a-fA-F]+$/.test(href)) {
     e.preventDefault();
     const hash = href.split("/").pop();
     if (hash && sdk?.actions?.viewCast) {
       sdk.actions.viewCast({ hash });
+    } else {
+      // Fallback: open in new tab if SDK not available
+      window.open(href, "_blank");
     }
     return;
   }
-  // Otherwise, let browser handle
+  
+  // External links - show warning and open in new tab
+  if (href && !href.startsWith("https://warpcast.com")) {
+    e.preventDefault();
+    const confirmed = window.confirm("You are being redirected out of the app. Continue?");
+    if (confirmed) {
+      window.open(href, "_blank");
+    }
+    return;
+  }
+  
+  // Otherwise, let browser handle (internal Warpcast links)
 }
 
 export function CastEmbed({
@@ -90,9 +105,7 @@ export function CastEmbed({
   const hasCastEmbeds = cast.embeds && cast.embeds.casts;
   const quoteCasts = cast.embeds && cast.embeds.casts;
 
-  // --- PATCH: Use TextTruncator for long text ---
-  const mainText = stripLastEmbedUrlFromCastBody(cast.text, lastUrl);
-  const shouldTruncate = mainText.length > 280;
+  const mainText = cast.text;
 
   return (
     <div className="not-prose farcaster-embed-container">
@@ -112,13 +125,11 @@ export function CastEmbed({
           </div>
         </div>
         <div className="farcaster-embed-body" style={{ wordWrap: "break-word" }}>
-          {shouldTruncate ? (
-            <TextTruncator text={mainText} maxLength={280} />
-          ) : (
-            <Linkify as="p" options={linkifyOptions}>
-              {mainText}
-            </Linkify>
-          )}
+          <CastTextFormatter 
+            text={mainText} 
+            maxLength={280} 
+            onSdkLinkClick={handleSdkLinkClick}
+          />
           {hasImages && <CastImages images={images} />}
           {hasVideos && <CastVideos videos={videos} client={client} />}
           {hasUrls && (
@@ -175,6 +186,7 @@ export function CastEmbed({
                   <div key={quoteCast.hash} className="farcaster-embed-quote-cast">
                     <div className="farcaster-embed-metadata">
                       <div className="farcaster-embed-avatar-link">
+                        <div className="farcaster-embed-quote-cast-author-avatar-container">
                         <img
                           src={quoteCast.author.pfp.url}
                           alt={`@${quoteCast.author.username}`}
@@ -182,6 +194,7 @@ export function CastEmbed({
                           height={20}
                           className="farcaster-embed-author-avatar"
                         />
+                        </div>
                       </div>
                       <div className="farcaster-embed-author">
                         <p className="farcaster-embed-author-display-name">{quoteCast.author.displayName}</p>
@@ -192,9 +205,11 @@ export function CastEmbed({
                       </div>
                     </div>
                     <div className="farcaster-embed-body">
-                      <Linkify as="p" options={linkifyOptions}>
-                        {quoteCast.text}
-                      </Linkify>
+                      <CastTextFormatter 
+                        text={quoteCast.text} 
+                        maxLength={280} 
+                        onSdkLinkClick={handleSdkLinkClick}
+                      />
                       {qcHasImages && <CastImages images={qcImages} />}
                       {qcHasVideos && <CastVideos videos={qcVideos} />}
                     </div>
